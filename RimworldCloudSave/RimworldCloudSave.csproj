@@ -1,0 +1,27 @@
+<Project Sdk="Zlepper.RimWorld.ModSdk/0.0.7">
+
+    <PropertyGroup>
+        <RimWorldModName>RimworldCloudSave</RimWorldModName>
+        <RimWorldPackageId>RimworldCloudSave</RimWorldPackageId>
+        <Authors>Farzo</Authors>
+        <Description>
+            This is a good description.
+        </Description>
+        <IncludeHarmony>true</IncludeHarmony>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MemoryCacheT" Version="0.2.3" />
+        <PackageReference Include="Zetrith.Prepatcher" Version="1.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <RimWorldResourceAbout Update="About\About.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </RimWorldResourceAbout>
+    </ItemGroup>
+
+</Project>
