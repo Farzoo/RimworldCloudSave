@@ -4,7 +4,7 @@ using UnityEngine;
 namespace RimworldCloudSave;
 
 [HarmonyPatch]
-public class Patch_DoMainMenuControls
+public static class Patch_DoMainMenuControls
 {
     
     [HarmonyPatch(typeof(MainMenuDrawer), nameof(MainMenuDrawer.DoMainMenuControls))]
@@ -15,8 +15,8 @@ public class Patch_DoMainMenuControls
 
         if (Widgets.ButtonText(buttonRect, "RimCloudSave")) // set the label of the button here
         {
-            var list = RimworldCloudSaveMod.CloudService.ListFilesAsync().Result;
-            var list2 = list.Select(s => RimworldCloudSaveMod.CloudService.GetFileMetadataAsync(s)).ToList();
+            var list = RimworldCloudSaveMod.Instance!.CloudService.ListFilesAsync().Result;
+            var list2 = list.Select(s => RimworldCloudSaveMod.Instance.CloudService.GetFileMetadataAsync(s)).ToList();
             // Print the names of all files in the cloud on a window
             // Combine the two lists
             var list3 = list.Zip(list2, (s, fileMetadata) => $"{s} {fileMetadata.Result.FileSize} - {fileMetadata.Result.LastModified}");
