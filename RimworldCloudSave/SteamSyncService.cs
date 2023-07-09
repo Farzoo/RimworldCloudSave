@@ -12,10 +12,9 @@ public class SteamSyncService
     private ICloudStorageService CloudService;
     
     // Leaves are the excluded files and folders
-    private VirtualTreeItem<string> ExcludedItemsRoot;
+    public VirtualTreeItem<string> ExcludedItemsRoot { get; }
     private VirtualTreeItem<string> WatchedNode;
-    
-    private VirtualTreeItem<string> RemoteItemsRoot;
+    public VirtualTreeItem<string> RemoteItemsRoot { get; }
 
     private Cache<string, FileSystemEventArgs> FileEventCache;
     private TimeSpan FileEventCacheExpiration => TimeSpan.FromMilliseconds(500);

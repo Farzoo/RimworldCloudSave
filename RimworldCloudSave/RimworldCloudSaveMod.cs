@@ -1,4 +1,5 @@
 using System.IO;
+using HarmonyLib;
 using UnityEngine;
 
 namespace RimworldCloudSave;
@@ -6,13 +7,13 @@ namespace RimworldCloudSave;
 [StaticConstructorOnStartup]
 public class RimworldCloudSaveMod : Mod
 {
-
     public static RimworldCloudSaveMod? Instance { get; private set; }
-
     public ICloudStorageService CloudService { get; }
     public FileSystemWatcher FileWatcher { get; }
     public RimCloudSaveSettings Settings { get; }
     
+    public SteamSyncService SteamSyncService { get; }
+
     public RimworldCloudSaveMod(ModContentPack content) : base(content)
     {
         Log.Message($"[RimworldCloudSaveMod] Runtime version: {Application.platform} {Application.unityVersion} {Application.version}");
@@ -31,9 +32,13 @@ public class RimworldCloudSaveMod : Mod
 
         VirtualTreeItem<string> excludedItemsRoot = new VirtualTreeItem<string>("");
 
-        var steamSyncService = new SteamSyncService(FileWatcher, CloudService, excludedFilesPaths, excludedFoldersPaths, excludedItemsRoot);
+        this.SteamSyncService = new SteamSyncService(FileWatcher, CloudService, excludedFilesPaths, excludedFoldersPaths, excludedItemsRoot);
         
         RimworldCloudSaveMod.Instance = this;
+        
+        // Harmony
+        var harmony = new Harmony("RimworldCloudSave");
+        harmony.PatchAll();
     }
 
     public override void DoSettingsWindowContents(Rect inRect)

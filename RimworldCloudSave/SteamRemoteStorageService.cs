@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public SteamRemoteStorageService()
     {
-   
+        if (!SteamManager.Initialized) throw new InvalidOperationException("SteamManager not initialized");
     }
 
     public Task WriteFileAsync(string cloudFileName, Stream fileData, CancellationToken cancellationToken = default)
@@ -22,8 +23,6 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task WriteFileAsync(string cloudFileName, Stream fileData, uint byteSize, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("SteamManager not initialized");
-
         var tcs = new TaskCompletionSource<bool>();
 
         Task.Factory.StartNew(() =>
@@ -43,7 +42,7 @@ public class SteamRemoteStorageService : ICloudStorageService
                 {
                     tcs.SetException(new InvalidOperationException($"SteamRemoteStorage.FileWriteAsync failed for file {cloudFileName}"));
                 }
-                else
+                else 
                 {
                     tcs.SetResult(true);
                 }
@@ -65,8 +64,7 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task DeleteFileAsync(string cloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
-        
+
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         
         Task.Factory.StartNew(() =>
@@ -80,8 +78,6 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task CreateFileAsync(string cloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
-        
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         
         Task.Factory.StartNew(() =>
@@ -98,8 +94,6 @@ public class SteamRemoteStorageService : ICloudStorageService
     /// <exception cref="InvalidOperationException">Thrown when SteamRemoteStorage.FileReadAsync failed for cloud file {cloudFileName}</exception>
     public Task<Stream> ReadFileAsync(string cloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
-
         var tcs = new TaskCompletionSource<Stream>();
 
         Task.Factory.StartNew(() =>
@@ -127,8 +121,6 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task RenameFileAsync(string oldCloudFileName, string newCloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
-        
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         
         Task.Run(() =>
@@ -146,7 +138,6 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task<List<string>> ListFilesAsync(CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<List<string>>.Factory.StartNew(() =>
         {
             int fileCount = SteamRemoteStorage.GetFileCount();
@@ -161,26 +152,23 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task<bool> FileExistsAsync(string cloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<bool>.Factory.StartNew(() => SteamRemoteStorage.FileExists(cloudFileName), cancellationToken);
     }
 
     public Task<FileMetadata> GetFileMetadataAsync(string cloudFileName, CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<FileMetadata>.Factory.StartNew(() =>
         {
-            var fileMetadata = new FileMetadata();
-            fileMetadata.FileSize = SteamRemoteStorage.GetFileSize(cloudFileName);
-            // Unix format to timespan
-            fileMetadata.LastModified = DateTimeOffset.FromUnixTimeSeconds(SteamRemoteStorage.GetFileTimestamp(cloudFileName)).DateTime.ToLocalTime();
+            var fileMetadata = new FileMetadata(
+                SteamRemoteStorage.GetFileSize(cloudFileName),
+            DateTimeOffset.FromUnixTimeSeconds(SteamRemoteStorage.GetFileTimestamp(cloudFileName)).DateTime.ToLocalTime()
+            );
             return fileMetadata;
         }, cancellationToken);
     }
 
     public Task<bool> IsCloudEnabledAsync(CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<bool>.Factory.StartNew(() =>
         {
             return SteamRemoteStorage.IsCloudEnabledForAccount() && SteamRemoteStorage.IsCloudEnabledForApp();
@@ -189,7 +177,6 @@ public class SteamRemoteStorageService : ICloudStorageService
 
     public Task<ulong> GetMaxCloudSpaceAsync(CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<ulong>.Factory.StartNew(() =>
         {
             SteamRemoteStorage.GetQuota(out var totalBytes, out var availableBytes);
@@ -199,7 +186,6 @@ public class SteamRemoteStorageService : ICloudStorageService
     
     public Task<ulong> GetAvailableCloudSpaceAsync(CancellationToken cancellationToken = default)
     {
-        if (!SteamManager.Initialized) throw new InvalidOperationException("[RimworldCloudSave] SteamManager not initialized");
         return Task<ulong>.Factory.StartNew(() =>
         {
             SteamRemoteStorage.GetQuota(out var totalBytes, out var availableBytes);

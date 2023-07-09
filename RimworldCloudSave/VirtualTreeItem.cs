@@ -38,9 +38,9 @@ public class VirtualTreeItem<T> where T : IEquatable<T>, IComparable<T>
         return existingChild;
     }
     
-    public VirtualTreeItem<T>? RemoveChild(VirtualTreeItem<T> child)
+    public bool RemoveChild(VirtualTreeItem<T> child)
     {
-        return this._childrenIds.Remove(child.Id) && this._children.Remove(child) ? child : null;
+        return this._childrenIds.Remove(child.Id) && this._children.Remove(child);
     }
 
     public VirtualTreeItem<T>? FindChild(Func<VirtualTreeItem<T>, bool> foundPredicate, Func<VirtualTreeItem<T>, bool> searchPredicate)

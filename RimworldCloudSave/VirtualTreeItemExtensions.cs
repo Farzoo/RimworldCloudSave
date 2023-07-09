@@ -1,4 +1,8 @@
-﻿namespace RimworldCloudSave;
+﻿using System.Collections;
+using HarmonyLib;
+using JetBrains.Annotations;
+
+namespace RimworldCloudSave;
 
 public static class VirtualTreeItemExtensions
 {
@@ -19,7 +23,7 @@ public static class VirtualTreeItemExtensions
                 stack.Push(child);
             }
         }
-        
+
         return result;
     }
     
@@ -31,7 +35,7 @@ public static class VirtualTreeItemExtensions
         while (stack.Count > 0)
         {
             var node = stack.Pop();
-            if(node != root)  destination.CreateAndAddChild(node.Id);
+            if(node != root) destination.CreateAndAddChild(node.Id);
             foreach (var child in node.Children)
             {
                 stack.Push(child);
@@ -89,6 +93,22 @@ public static class VirtualTreeItemExtensions
         return current;
     }
     
+    public static VirtualTreeItem<T> BuildTreeFromVirtualTreeItem<T>(this VirtualTreeItem<T> root, VirtualTreeItem<T> item) where T : IEquatable<T>, IComparable<T>
+    {
+        Stack<T> nodesPath = new Stack<T>();
+        
+        VirtualTreeItem<T> cursor = item;
+        
+        while (!cursor.Id.Equals(root.Id))
+        {
+            nodesPath.Push(cursor.Id);
+            cursor = cursor.Parent!;
+        }
+
+        return root.BuildTreeFromNodesPath(nodesPath);
+
+    }
+
     public static VirtualTreeItem<T> ConditionalBuildTreeFromNodesPath<T>(this VirtualTreeItem<T> root, IEnumerable<T> ids, Func<VirtualTreeItem<T>, bool> PrehaltPredicate) where T : IEquatable<T>, IComparable<T>
     {
         VirtualTreeItem<T> current = root;

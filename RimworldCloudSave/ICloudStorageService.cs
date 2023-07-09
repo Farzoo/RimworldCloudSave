@@ -32,6 +32,12 @@ public interface ICloudStorageService
 
 public struct FileMetadata
 {
-    public int FileSize { get; set; }
-    public DateTime LastModified { get; set; }
+    public readonly int FileSize;
+    public readonly DateTime LastModified;
+
+    public FileMetadata(int fileSize, DateTime lastModified)
+    {
+        this.FileSize = fileSize;
+        this.LastModified = lastModified;
+    }
 }
